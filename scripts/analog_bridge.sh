@@ -16,10 +16,10 @@ set -o errexit
 # p25 = /opt/Analog_Bridge/Analog_Bridge.sh p25.ini
 # ysf = /opt/Analog_Bridge/Analog_Bridge.sh ysf.ini
 
-echo copying $1 to /opt/opt/Analog_Bridge_Single_Port/Analog_Bridge.ini
+echo copying $1 to /opt/Analog_Bridge/Analog_Bridge.ini
 
-cp /opt/Analog_Bridge_Single_Port/$1 /tmp/Analog_Bridge.ini
-cp /opt/Analog_Bridge_Single_Port/$1 /opt/Analog_Bridge_Single_Port/Analog_Bridge.ini
+cp /opt/Analog_Bridge/$1 /tmp/Analog_Bridge.ini
+cp /opt/Analog_Bridge/$1 /opt/Analog_Bridge/Analog_Bridge.ini
 
 mode=`cat /tmp/ABInfo_12345.json | python -c 'import json,sys;obj=json.load(sys.stdin); print obj["tlv"]["ambe_mode"];'`
 
