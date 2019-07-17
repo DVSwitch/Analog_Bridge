@@ -25,5 +25,5 @@ mode=`cat /tmp/ABInfo_12345.json | python -c 'import json,sys;obj=json.load(sys.
 
 /usr/local/sbin/ab-restart.sh $mode 0 5
 
-# systemctl restart analog_bridge_ambe
+systemctl restart analog_bridge
 
