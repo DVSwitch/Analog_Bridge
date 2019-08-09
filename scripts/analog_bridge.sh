@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -o errexit
 
-# N4IRS 06/19/2018
+# N4IRS 08/09/2019
 
 #################################################
 #                                               #
@@ -9,21 +9,48 @@ set -o errexit
 #                                               #
 #################################################
 
-# From Analog_Bridge .ini files
-# dmr = /opt/Analog_Bridge/Analog_Bridge.sh dmr.ini
-# dstar = /opt/Analog_Bridge/Analog_Bridge.sh dstar.ini
-# nxdn = /opt/Analog_Bridge/Analog_Bridge.sh nxdn.ini
-# p25 = /opt/Analog_Bridge/Analog_Bridge.sh p25.ini
-# ysf = /opt/Analog_Bridge/Analog_Bridge.sh ysf.ini
+function modeChange() {
+    case $1 in
+        dmr | DMR)
+            /usr/local/sbin/dvs-remote.sh ambemode DMR
+            /usr/local/sbin/dvs-remote.sh tlvtxport 31103
+            /usr/local/sbin/dvs-remote.sh tlvrxport 31100
+            # /usr/local/sbin/dvs-remote.sh tune 31123
+            /usr/local/sbin/dvs-remote.sh info
+        ;;
+        dstar | DSTAR)
+            /usr/local/sbin/dvs-remote.sh ambemode DSTAR
+            /usr/local/sbin/dvs-remote.sh tlvtxport 32103
+            /usr/local/sbin/dvs-remote.sh tlvrxport 32100
+            # /usr/local/sbin/dvs-remote.sh tune 31123
+            /usr/local/sbin/dvs-remote.sh info
+        ;;
+        nxdn | NXDN)
+            /usr/local/sbin/dvs-remote.sh ambemode NXDN
+            /usr/local/sbin/dvs-remote.sh tlvtxport 33103
+            /usr/local/sbin/dvs-remote.sh tlvrxport 33100
+            # /usr/local/sbin/dvs-remote.sh tune 31123
+            /usr/local/sbin/dvs-remote.sh info
+        ;;
+        p25 | P25)
+            /usr/local/sbin/dvs-remote.sh ambemode P25
+            /usr/local/sbin/dvs-remote.sh tlvtxport 34103
+            /usr/local/sbin/dvs-remote.sh tlvrxport 34100
+            # /usr/local/sbin/dvs-remote.sh tune 31123
+            /usr/local/sbin/dvs-remote.sh info
+        ;;
+        ysf | YSF | YSFN | YSFW)
+            /usr/local/sbin/dvs-remote.sh ambemode YSFn
+            /usr/local/sbin/dvs-remote.sh tlvtxport 35103
+            /usr/local/sbin/dvs-remote.sh tlvrxport 35100
+            # /usr/local/sbin/dvs-remote.sh tune 31123
+            /usr/local/sbin/dvs-remote.sh info
+        ;;
+        *)
+            echo "Unknown mode"
+            exit 1
+        ;;
+    esac
+}
 
-echo copying $1 to /opt/Analog_Bridge/Analog_Bridge.ini
-
-cp /opt/Analog_Bridge/$1 /tmp/Analog_Bridge.ini
-cp /opt/Analog_Bridge/$1 /opt/Analog_Bridge/Analog_Bridge.ini
-
-mode=`cat /tmp/ABInfo_12345.json | python -c 'import json,sys;obj=json.load(sys.stdin); print obj["tlv"]["ambe_mode"];'`
-
-/usr/local/sbin/ab-restart.sh $mode 0 5
-
-systemctl restart analog_bridge
-
+modeChange $1
