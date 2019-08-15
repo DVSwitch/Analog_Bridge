@@ -18,7 +18,7 @@
 
 # tune.sh mode TG
 
-/usr/local/sbin/tune.sh tune dmr 93
+# /usr/local/sbin/tune.sh tune dmr 93
 
 ##########################################
 
