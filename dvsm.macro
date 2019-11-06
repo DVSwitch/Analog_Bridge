@@ -1,0 +1,19 @@
+; dvsm.macro
+; This is a macro include file for Analog_Bridge(AB)
+; The purpose of this file is to provide macro commands for use by DVSwitch Mobile(DVSM)
+; These macros execute scripts when a DVSM user requests a mode change.
+
+
+[MACROS]
+; Example: When a DVSM user selects the DMR mode, AB will look for the mode below and execute the script and pass the parameter.
+; In this case, AB will execute "/opt/Analog_Bridge/dvswitch.sh" and pass the prarmeter of "dmr" to the script. 
+
+DMR =   /opt/Analog_Bridge/dvswitch.sh mode DMR
+DSTAR = /opt/Analog_Bridge/dvswitch.sh mode DSTAR
+NXDN =  /opt/Analog_Bridge/dvswitch.sh mode NXDN
+P25 =   /opt/Analog_Bridge/dvswitch.sh mode P25
+YSF =   /opt/Analog_Bridge/dvswitch.sh mode YSF
+
+; Example TG / Reflector Macro
+9876 =  /opt/Analog_Bridge/parrot.sh
+
