@@ -27,6 +27,12 @@ MMDVM_DIR="/var/lib/mmdvm"
 DVSWITCH_INI="/opt/MMDVM_Bridge/DVSwitch.ini"
 NODE_DIR=/tmp
 
+if [ ${USER}xx == mzingmanxx ]; then
+    AB_DIR=/tmp
+    MMDVM_DIR=/tmp
+    DVSWITCH_INI="/Users/mzingman/Desktop/NXDN/xcode/MMDVM_Bridge/MMDVM_Bridge/DVSwitch.ini"
+fi
+
 # Default server and port assignment, but overridden by value in ABInfo
 TLV_PORT=36000
 SERVER=127.0.0.1
