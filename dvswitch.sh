@@ -19,8 +19,9 @@
 #################################################################
 
 #DEBUG=echo
+#set -xv   # this line will enable debug
 
-SCRIPT_VERSION="dvswitch.sh 1.4"
+SCRIPT_VERSION="dvswitch.sh 1.4.1"
 
 AB_DIR="/var/lib/dvswitch"
 MMDVM_DIR="/var/lib/mmdvm"
@@ -36,6 +37,9 @@ fi
 # Default server and port assignment, but overridden by value in ABInfo
 TLV_PORT=36000
 SERVER=127.0.0.1
+
+# HTTP_PORT is used for the simple server that supports data file uploads
+HTTP_PORT=9042
 
 # Error codes defined below
 SUCCESSS=0
@@ -580,19 +584,19 @@ function getMyIP() {
 }
 
 #################################################################
-# Get all mobile data files, proces them into proper format and
+# Get all mobile data files, proces them into proper format and 
 # push the URL to the device.  Starts a simple web server on port
-# 9042.
+# $HTTP_PORT (9042).
 #################################################################
 function collectProcessPushDataFilesHTTP() {
 
-    declare processID=`ps aux | grep "python -m SimpleHTTPServer 9042" | grep -v grep | awk '{print $2}'`
+    declare processID=`ps aux | grep "python -m SimpleHTTPServer $HTTP_PORT" | grep -v grep | awk '{print $2}'`
     kill $processID 2>/dev/null
     pushd "$NODE_DIR"
-    python -m SimpleHTTPServer 9042 &
+    python -m SimpleHTTPServer $HTTP_PORT &
     popd
     declare _MYIP=`getMyIP`
-    PSERVER="http://${_MYIP}:9042"
+    PSERVER="http://${_MYIP}:$HTTP_PORT"
 
     collectProcessDataFiles
 
@@ -620,7 +624,7 @@ function collectProcessPushDataFilesHTTP() {
     pushLocalFileAsURLToClient "$NODE_DIR" "$PSERVER" "node_list.txt"
     sleep 10
 
-    processID=`ps aux | grep "python -m SimpleHTTPServer 9042" | grep -v grep | awk '{print $2}'`
+    processID=`ps aux | grep "python -m SimpleHTTPServer $HTTP_PORT" | grep -v grep | awk '{print $2}'`
     kill $processID 2>/dev/null
 
     sendMessage "Database update complete"
