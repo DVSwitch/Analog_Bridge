@@ -21,7 +21,7 @@
 #DEBUG=echo
 #set -xv   # this line will enable debug
 
-SCRIPT_VERSION="dvswitch.sh 1.4.1"
+SCRIPT_VERSION="dvswitch.sh 1.5.0"
 
 AB_DIR="/var/lib/dvswitch"
 MMDVM_DIR="/var/lib/mmdvm"
@@ -69,7 +69,7 @@ try:
             value = json["$1"]["$2"]
         else:
             value = json["$1"]["$2"]["$3"]
-    print value
+    print(value)
 except:
     exit(1)
 END
@@ -80,7 +80,7 @@ END
 #################################################################
 function getABInfoFileName() {
         if [ -z "${ABINFO}" ]; then # if no enviornment variable, use the latest file in /tmp
-        declare _json_file=`ls -t /tmp/ABInfo_*.json | head -1`
+        declare _json_file=`ls -t /tmp/ABInfo_*.json 2>/dev/null | head -1`
     else
         declare _json_file=$ABINFO  # Use the environment variable (probably set by AB)
     fi
@@ -217,6 +217,24 @@ function setTLVGain() {
 }
 
 #################################################################
+# Set the USRP audio codec to {SLIN|ULAW|ADPCM}
+#################################################################
+function setUSRPCodec() {
+    if [ $# -eq 0 ]; then
+        echo "Argument required: codec"
+        _ERRORCODE=$ERROR_INVALID_ARGUMENT
+    else
+        string='|SLIN|ULAW|ADPCM|slin|ulaw|adpcm|'
+        if [[ $string == *"|$1|"* ]]; then
+            remoteControlCommand "codec=$1"
+        else
+            echo "Invalid argument: {slin|ulaw|adpcm}"
+            _ERRORCODE=$ERROR_INVALID_ARGUMENT
+        fi
+    fi
+}
+
+#################################################################
 # set the AB listener port
 #################################################################
 function setTLVRxPort() {
@@ -267,10 +285,22 @@ function setMute() {
 #################################################################
 function sendMessage() {
     if [ -z "$1" ]; then
-        echo "Argument required"
+        echo "Argument required: text"
         _ERRORCODE=$ERROR_INVALID_ARGUMENT
     else
         remoteControlCommand "message=$1"
+    fi
+}
+
+#################################################################
+# Send a macro definition or file to Mobile
+#################################################################
+function sendMacro() {
+    if [ -z "$1" ]; then
+        echo "Argument required: file or text"
+        _ERRORCODE=$ERROR_INVALID_ARGUMENT
+    else
+        remoteControlCommand "macro=$1"
     fi
 }
 
@@ -294,6 +324,27 @@ except:
     exit(1)
 END
     fi
+}
+
+#################################################################
+# Compose a URRP packet and send it to AB (WIP: address and port)
+#################################################################
+function USRPCommand() {
+python - <<END
+#!/usr/bin/env python
+import traceback, struct, socket
+try:
+    usrpSeq = 1
+    packetType = $1
+    cmd = "$2"
+    usrp = 'USRP'.encode('ASCII') + (struct.pack('>iiiiiii',usrpSeq, 0, 0, 0, packetType << 24, 0, 0)) + cmd
+    usrpSeq = (usrpSeq + 1) & 0xffff
+    udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    udp.sendto(usrp, ("127.0.0.1", 12345))
+    udp.close()
+except:
+    traceback.print_exc()
+END
 }
 
 #################################################################
@@ -707,8 +758,8 @@ function lookup() {
 #################################################################
 function usage() {
     echo -e "Usage:"
-    echo -e "$0 \n\t { version | mode | tune | ambesize | ambemode | slot | update | tlvAudio | usrpAudio | tlvPorts | "
-    echo -e "\t   info | show | lookup | mute | message |"
+    echo -e "$0 \n\t { version | mode | tune | ambesize | ambemode | slot | update | tlvAudio | usrpAudio | usrpCodec | tlvPorts | "
+    echo -e "\t   info | show | lookup | mute | message | macro |"
     echo -e "\t   pushfile | collectProcessDataFiles | collectProcessPushDataFiles | pushurl | collectProcessPushDataFilesHTTP }"
     echo -e "\t version {AB}\t\t\t\t\t Show version of dvswitch.sh or Analog_Bridge"
     echo -e "\t mode {DMR|NXDN|P25|YSF|DSTAR} \t\t\t Set Analog_Bridge digital mode"
@@ -717,14 +768,16 @@ function usage() {
     echo -e "\t ambemode {DMR|NXDN|P25|YSFN|YSFW|DSTAR} \t Set AMBE mode"
     echo -e "\t slot {1|2} \t\t\t\t\t Set DMR slot to transmit on"
     echo -e "\t update \t\t\t\t\t Update callsign databases"
-    echo -e "\t tlvAudio gain\t\t\t\t\t Set AMBE audio gain"
-    echo -e "\t usrpAudio gain\t\t\t\t\t Set PCM audio gain"
+    echo -e "\t tlvAudio mode gain\t\t\t\t Set AMBE audio mode and gain"
+    echo -e "\t usrpAudio mode gain\t\t\t\t Set PCM audio mode and gain"
+    echo -e "\t usrpCodec {SLIN|ULAW|ADPCM}\t\t\t Set AB -> DVSM/UC audio codec"
     echo -e "\t tlvPorts rxport txport\t\t\t\t Set Analog_Bridge receive and transmit ports"
     echo -e "\t info \t\t\t\t\t\t Update ABInfo and send to DVSM/UC"
     echo -e "\t show \t\t\t\t\t\t Pretty print the ABInfo json file"
     echo -e "\t lookup \t\t\t\t\t Lookup a DMR ID/call in the local database"
     echo -e "\t mute {OFF|USRP|TLV|BOTH}\t\t\t Cause Aanlog_Bridge to mute a stream"
     echo -e "\t message msg\t\t\t\t\t Send a text message to DVSM/UC"
+    echo -e "\t macro {file|text}\t\t\t\t Send a macro collection to DVSM"
     echo -e "\t pushfile file\t\t\t\t\t Push file to DVSM"
     echo -e "\t pushurl url\t\t\t\t\t Push URL to DVSM"
     echo -e "\t collectProcessDataFiles \t\t\t Collect and prepare DVSM data files"
@@ -740,6 +793,10 @@ if [ $# -eq 0 ]; then
     usage   # No arguments, so just report usage information
 else
     TLV_PORT=`getTLVPort`   # Get the communications port to use before we go further
+    if [ -z $TLV_PORT ]; then
+        echo "Can not find /tmp/ABInfo file, aborting" 
+        exit 1
+    fi
     case $1 in
         -h|--help|"-?")
             usage
@@ -775,6 +832,9 @@ else
             setUSRPAudioType $2
             setUSRPGain $3
         ;;
+        usrpCodec|usrpcodec)
+            setUSRPCodec $2
+        ;;
         tlvPorts|tlvports)
             setTLVRxPort $2
             setTLVTxPort $3
@@ -793,28 +853,34 @@ else
         mute)
             setMute $2
         ;;
-        pushFile|pushfile)
+        pushFile|pushfile|pf)
             pushFileToClient "$2"
         ;;
-        collectProcessDataFiles|collectprocessdatafiles)
+        collectProcessDataFiles|collectprocessdatafiles|cpdf)
             collectProcessDataFiles
         ;;
-        collectProcessPushDataFiles|collectprocesspushdatafiles)
+        collectProcessPushDataFiles|collectprocesspushdatafiles|cppdf)
             collectProcessPushDataFiles
         ;;
         pushUrl|pushurl)
             pushURLToClient "$2"
         ;;
-        collectProcessPushDataFilesHTTP|collectprocesspushdatafileshttp)
+        collectProcessPushDataFilesHTTP|collectprocesspushdatafileshttp|cppdfh)
             collectProcessPushDataFilesHTTP
         ;;
         message)
             sendMessage "$2"
         ;;
+        macro)
+            sendMacro "$2"
+        ;;
         exitAB|exitab)
             exitAnalogBridge $2 $3
         ;;
-        version)
+        usrpCommand|usrp)   # undocumented ATM/WIP
+            USRPCommand "$2" "$3"
+        ;;
+        version|-v)
             if [ $# -eq 1 ]; then
                 echo $SCRIPT_VERSION
             else
