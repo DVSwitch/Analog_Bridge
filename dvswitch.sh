@@ -305,6 +305,17 @@ function sendMacro() {
 }
 
 #################################################################
+# Set the ping timer (keep alive)
+#################################################################
+function setPingTimer() {
+    if [ -z "$1" ]; then
+        getABInfoValue usrp ping
+    else
+        remoteControlCommand "ping=$1"
+    fi
+}
+
+#################################################################
 # Send the remote control TLV command to Analog_Bridge
 #################################################################
 function remoteControlCommand() {
@@ -873,6 +884,9 @@ else
         ;;
         macro)
             sendMacro "$2"
+        ;;
+        ping)
+            setPingTimer "$2"
         ;;
         exitAB|exitab)
             exitAnalogBridge $2 $3
