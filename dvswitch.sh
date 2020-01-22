@@ -21,7 +21,7 @@
 #DEBUG=echo
 #set -xv   # this line will enable debug
 
-SCRIPT_VERSION="dvswitch.sh 1.5.0"
+SCRIPT_VERSION="dvswitch.sh 1.5.2"
 
 AB_DIR="/var/lib/dvswitch"
 MMDVM_DIR="/var/lib/mmdvm"
@@ -688,12 +688,55 @@ function collectProcessPushDataFilesHTTP() {
 }
 
 #################################################################
-# Download DMR and NXDN user databases
+# Download and validate a file.  This function will use curl to download
+# a file from a server and test for valid data.  The tests include
+# a warning on download failure, and errors for file size and valid contents. 
+#################################################################
+function downloadAndValidate() {
+    ${DEBUG} curl --fail -o "$MMDVM_DIR/$1" -s "http://www.pistar.uk/downloads/$2"
+    if (( $? != 0 )); then
+        echo "Warning, download failure"
+        _ERRORCODE=$ERROR_FILE_NOT_FOUND
+    fi
+    if [ ! -f $MMDVM_DIR/$1 ]; then
+        echo "Error, $1 file does not seem to exist"
+        _ERRORCODE=$ERROR_INVALID_FILE
+    else
+        declare _fileSize=`wc -c $MMDVM_DIR/$1 | awk '{print $1}'`
+        if (( ${_fileSize} < 10 )); then
+            echo "Error, $1 file has no contents"
+            _ERRORCODE=$ERROR_INVALID_FILE
+        else
+            declare isValid=`grep $3 "$MMDVM_DIR/$1"`
+            if [ -z "$isValid" ]; then
+                echo "Error, $1 file does not seem to be valid"
+                _ERRORCODE=$ERROR_INVALID_FILE
+            fi
+        fi
+    fi
+}
+
+#################################################################
+# Download all user databases
 #################################################################
 function downloadDatabases() {
     if [ -d "${MMDVM_DIR}" ] && [ -d "${AB_DIR}" ]; then
         ${DEBUG} curl -s -N "https://www.radioid.net/api/dmr/user/?id=%" | jq -r '.results[] | [.id, .callsign, .fname] | @csv' | sed -e 's/"//g' | sed -e 's/,/ /g' > "${MMDVM_DIR}/DMRIds.dat"
         ${DEBUG} curl -s -N "https://www.radioid.net/api/dmr/user/?id=%" | jq -r '.results[] | [.id, .callsign, .fname] | @csv' | sed -e 's/"//g' > "${AB_DIR}/subscriber_ids.csv"
+        ${DEBUG} curl -s -N "https://www.radioid.net/api/nxdn/user/?id=%" | jq -r '.results[] | [.id, .callsign, .fname, .surname, .city, .state, .country, .remarks] | @csv' | sed -e 's/"//g' > "${MMDVM_DIR}/NXDN.csv"
+
+        downloadAndValidate "NXDNHosts.txt" "NXDN_Hosts.txt" "dvswitch.org"
+        downloadAndValidate "P25Hosts.txt" "P25_Hosts.txt" "dvswitch.org"
+        downloadAndValidate "TGList_BM.txt" "TGList_BM.txt" "DVSWITCH"
+        downloadAndValidate "YSFHosts.txt" "YSF_Hosts.txt" "dvswitch.org"
+
+        downloadAndValidate "FCSRooms.txt" "FCS_Hosts.txt" "FCS00106"
+        downloadAndValidate "DCS_Hosts.txt" "DCS_Hosts.txt" "DCS006"
+        downloadAndValidate "DPlus_Hosts.txt" "DPlus_Hosts.txt" "REF030"
+        downloadAndValidate "DExtra_Hosts.txt" "DExtra_Hosts.txt" "XRF012"
+        downloadAndValidate "XLXHosts.txt" "XLXHosts.txt" "000"
+        downloadAndValidate "APRS_Hosts.txt" "APRS_Hosts.txt" "central.aprs2.net"
+
         declare isValid=`grep 3113043 "${MMDVM_DIR}/DMRIds.dat"`
         if [ -z "$isValid" ]; then
             echo "Error, DMR ID file does not seem to be valid"
