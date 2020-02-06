@@ -21,7 +21,7 @@
 #DEBUG=echo
 #set -xv   # this line will enable debug
 
-SCRIPT_VERSION="dvswitch.sh 1.5.2"
+SCRIPT_VERSION="dvswitch.sh 1.5.3"
 
 AB_DIR="/var/lib/dvswitch"
 MMDVM_DIR="/var/lib/mmdvm"
@@ -815,7 +815,7 @@ function usage() {
     echo -e "\t ambesize {72|88|49}\t\t\t\t Set number of bits for ambe data"
     echo -e "\t ambemode {DMR|NXDN|P25|YSFN|YSFW|DSTAR} \t Set AMBE mode"
     echo -e "\t slot {1|2} \t\t\t\t\t Set DMR slot to transmit on"
-    echo -e "\t update \t\t\t\t\t Update callsign databases"
+    echo -e "\t update \t\t\t\t\t Update callsign and host databases"
     echo -e "\t tlvAudio mode gain\t\t\t\t Set AMBE audio mode and gain"
     echo -e "\t usrpAudio mode gain\t\t\t\t Set PCM audio mode and gain"
     echo -e "\t usrpCodec {SLIN|ULAW|ADPCM}\t\t\t Set AB -> DVSM/UC audio codec"
@@ -840,96 +840,18 @@ function usage() {
 if [ $# -eq 0 ]; then
     usage   # No arguments, so just report usage information
 else
-    TLV_PORT=`getTLVPort`   # Get the communications port to use before we go further
-    if [ -z $TLV_PORT ]; then
-        echo "Can not find /tmp/ABInfo file, aborting" 
-        exit 1
-    fi
     case $1 in
-        -h|--help|"-?")
+        -h|--help|"-?"|help)
             usage
-        ;;
-        mode)
-            setMode $2
-        ;;
-        tune)
-            ${DEBUG} tune $2
-            ${DEBUG} getInfo
-        ;;
-        ambeSize|ambesize)
-            ${DEBUG} setAmbeSize $2
-        ;;
-        ambeMode|ambemode)
-            ${DEBUG} setAmbeMode $2
-        ;;
-        slot)
-            ${DEBUG} setSlot $2
-        ;;
-        setCallAndId|setcallandid)
-            setCallAndID $2 $3
-            getInfo
         ;;
         update)
             downloadDatabases
         ;;
-        tlvAudio|tlvaudio)
-            setTLVAudioType $2
-            setTLVGain $3
-        ;;
-        usrpAudio|usrpaudio)
-            setUSRPAudioType $2
-            setUSRPGain $3
-        ;;
-        usrpCodec|usrpcodec)
-            setUSRPCodec $2
-        ;;
-        tlvPorts|tlvports)
-            setTLVRxPort $2
-            setTLVTxPort $3
-        ;;
-        info)
-            # no arguments fill just tell AB to update the json file
-            # two arguments returns the value of "object" and "name" object{name:value}
-            getInfo $2 $3
-        ;;
-        show)
-            prettyPrintInfo
-        ;;
         lookup)
             lookup $2
         ;;
-        mute)
-            setMute $2
-        ;;
-        pushFile|pushfile|pf)
-            pushFileToClient "$2"
-        ;;
         collectProcessDataFiles|collectprocessdatafiles|cpdf)
             collectProcessDataFiles
-        ;;
-        collectProcessPushDataFiles|collectprocesspushdatafiles|cppdf)
-            collectProcessPushDataFiles
-        ;;
-        pushUrl|pushurl)
-            pushURLToClient "$2"
-        ;;
-        collectProcessPushDataFilesHTTP|collectprocesspushdatafileshttp|cppdfh)
-            collectProcessPushDataFilesHTTP
-        ;;
-        message)
-            sendMessage "$2"
-        ;;
-        macro)
-            sendMacro "$2"
-        ;;
-        ping)
-            setPingTimer "$2"
-        ;;
-        exitAB|exitab)
-            exitAnalogBridge $2 $3
-        ;;
-        usrpCommand|usrp)   # undocumented ATM/WIP
-            USRPCommand "$2" "$3"
         ;;
         version|-v)
             if [ $# -eq 1 ]; then
@@ -939,10 +861,93 @@ else
             fi
         ;;
         *)
-            # unknown option, update branch info (no option is specified, just ordered by placement)
-            echo "Unknown command line option:" $1
-            usage
-        ;;
+            # All the commands below require that a valid ABInfo file exists.  
+            TLV_PORT=`getTLVPort`   # Get the communications port to use before we go further
+            if [ -z $TLV_PORT ]; then
+                echo "Can not find /tmp/ABInfo file (have you run Analog_Brigde?), aborting" 
+                exit 1
+            fi
+            case $1 in
+                mode)
+                    setMode $2
+                ;;
+                tune)
+                    ${DEBUG} tune $2
+                    ${DEBUG} getInfo
+                ;;
+                ambeSize|ambesize)
+                    ${DEBUG} setAmbeSize $2
+                ;;
+                ambeMode|ambemode)
+                    ${DEBUG} setAmbeMode $2
+                ;;
+                slot)
+                    ${DEBUG} setSlot $2
+                ;;
+                setCallAndId|setcallandid)
+                    setCallAndID $2 $3
+                    getInfo
+                ;;
+                tlvAudio|tlvaudio)
+                    setTLVAudioType $2
+                    setTLVGain $3
+                ;;
+                usrpAudio|usrpaudio)
+                    setUSRPAudioType $2
+                    setUSRPGain $3
+                ;;
+                usrpCodec|usrpcodec)
+                    setUSRPCodec $2
+                ;;
+                tlvPorts|tlvports)
+                    setTLVRxPort $2
+                    setTLVTxPort $3
+                ;;
+                info)
+                    # no arguments fill just tell AB to update the json file
+                    # two arguments returns the value of "object" and "name" object{name:value}
+                    getInfo $2 $3
+                ;;
+                show)
+                    prettyPrintInfo
+                ;;
+                mute)
+                    setMute $2
+                ;;
+                pushFile|pushfile|pf)
+                    pushFileToClient "$2"
+                ;;
+                collectProcessPushDataFiles|collectprocesspushdatafiles|cppdf)
+                    collectProcessPushDataFiles
+                ;;
+                pushUrl|pushurl)
+                    pushURLToClient "$2"
+                ;;
+                collectProcessPushDataFilesHTTP|collectprocesspushdatafileshttp|cppdfh)
+                    collectProcessPushDataFilesHTTP
+                ;;
+                message)
+                    sendMessage "$2"
+                ;;
+                macro)
+                    sendMacro "$2"
+                ;;
+                ping)
+                    setPingTimer "$2"
+                ;;
+                exitAB|exitab)
+                    exitAnalogBridge $2 $3
+                ;;
+                usrpCommand|usrp)   # undocumented ATM/WIP
+                    USRPCommand "$2" "$3"
+                ;;
+                *)
+                    # unknown option, update branch info (no option is specified, just ordered by placement)
+                    echo "Unknown command line option:" $1
+                    usage
+                ;;
+            esac
+                ;;
     esac
 fi
 exit $_ERRORCODE
