@@ -180,7 +180,7 @@ def main(argv):
     else:
         _sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         _sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        _sock.bind(('', UDP_PORT))
+#        _sock.bind(('', UDP_PORT))
         port = _sock
 
     print '*********************'
@@ -240,4 +240,3 @@ def main(argv):
 
 if __name__ == "__main__":
     main(sys.argv[1:])
-
