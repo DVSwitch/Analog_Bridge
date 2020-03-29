@@ -180,7 +180,7 @@ def main(argv):
     else:
         _sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         _sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        _sock.bind(('', UDP_PORT))
+#        _sock.bind(('', UDP_PORT))
         port = _sock
 
     print '*********************'
@@ -228,7 +228,7 @@ def main(argv):
                     print 'AMBE channel ID is not correct'
                     stopOnError()
                 elif ord(_payload[1]) != 0x48: # 72 bits in length
-                    print 'AMBE bit length is not correct', ord(_payload[0])
+                    print 'AMBE bit length is not correct', ord(_payload[1])
                     stopOnError()
             else:
                 print 'Error, encode PCM to AMBE return no results'
@@ -240,4 +240,3 @@ def main(argv):
 
 if __name__ == "__main__":
     main(sys.argv[1:])
-
