@@ -228,7 +228,7 @@ def main(argv):
                     print 'AMBE channel ID is not correct'
                     stopOnError()
                 elif ord(_payload[1]) != 0x48: # 72 bits in length
-                    print 'AMBE bit length is not correct', ord(_payload[0])
+                    print 'AMBE bit length is not correct', ord(_payload[1])
                     stopOnError()
             else:
                 print 'Error, encode PCM to AMBE return no results'
