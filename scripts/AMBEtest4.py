@@ -180,7 +180,6 @@ def main(argv):
     else:
         _sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         _sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-#        _sock.bind(('', UDP_PORT))
         port = _sock
 
     print '*********************'
