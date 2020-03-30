@@ -42,8 +42,7 @@ setDstar = bytearray.fromhex("61 00 0d 00 0a 01 30 07 63 40 00 00 00 00 00 00 48
 getProdId = bytearray.fromhex("61 00 01 00 30")
 
 getVersion = bytearray.fromhex("61 00 01 00 31")
-getVersion_expected = bytearray.fromhex("31563132302e453130302e585858582e433130362e473531342e523030392e4230303130343131
-2e433030323032303800")
+getVersion_expected = bytearray.fromhex("31563132302e453130302e585858582e433130362e473531342e523030392e42303031303431312e433030323032303800")
 
 setDMR = bytearray.fromhex("61 00 0D 00 0A 04 31 07 54 24 00 00 00 00 00 6F 48")
 encodeAMBE = bytearray.fromhex("61 00 0B 01 01 48")
@@ -136,8 +135,7 @@ def ambeValidate( port, cmd, expect, label ):
             stopOnError()
         else:
             if buffer[0:1] != b'\x61':
-                print('Error, DV3000 sent back invalid start byte. Expected 0x61 and got 0x'+bytearray(buffer[0:1]).hex
-(),label)
+                print('Error, DV3000 sent back invalid start byte. Expected 0x61 and got 0x'+bytearray(buffer[0:1]).hex(),label)
                 print(buffer.hex())
                 stopOnError()
             else:
@@ -153,8 +151,7 @@ def ambeValidate( port, cmd, expect, label ):
                         for x in range(0,len(expect)):
                             if _payload[x:x+1] != expect[x:x+1]:
                                 print("In test", label)
-                                print('Error, did not get expected value from DV3000.  Got:',_payload,'expected',expect
-)
+                                print('Error, did not get expected value from DV3000.  Got:',_payload,'expected',expect)
                                 print(_payload.hex())
                                 stopOnError()
                                 return None, None
@@ -211,8 +208,7 @@ def main(argv):
     if useSerial == True:
         try:
             print('Opening serial port')
-            port = serial.Serial(serialport, baudrate=SERIAL_BAUD, timeout=1.0, bytesize=serial.EIGHTBITS, parity=seria
-l.PARITY_NONE, stopbits=serial.STOPBITS_ONE, xonxoff=False, rtscts=False, dsrdtr=False)
+            port = serial.Serial(serialport, baudrate=SERIAL_BAUD, timeout=1.0, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, xonxoff=False, rtscts=False, dsrdtr=False)
         except:
             print('Error opening serial port', serialport)
             exit(2)
