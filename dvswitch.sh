@@ -21,12 +21,12 @@
 #DEBUG=echo
 #set -xv   # this line will enable debug
 
-SCRIPT_VERSION="dvswitch.sh 1.5.3"
+SCRIPT_VERSION="dvswitch.sh 1.5.4"
 
-AB_DIR="/var/lib/dvswitch"
-MMDVM_DIR="/var/lib/mmdvm"
-DVSWITCH_INI="/opt/MMDVM_Bridge/DVSwitch.ini"
-NODE_DIR=/tmp
+AB_DIR=${AB_DIR:-"/var/lib/dvswitch"}
+MMDVM_DIR=${MMDVM_DIR:-"/var/lib/mmdvm"}
+DVSWITCH_INI=${DVSWITCH_INI:-"/opt/MMDVM_Bridge/DVSwitch.ini"}
+NODE_DIR=${NODE_DIR:-"/tmp"}
 
 # Default server and port assignment, but overridden by value in ABInfo
 TLV_PORT=36000
@@ -290,11 +290,11 @@ function sendMessage() {
 # Send a macro definition or file to Mobile
 #################################################################
 function sendMacro() {
-    if [ -z "$1" ]; then
+    if [ -z "$2" ]; then
         echo "Argument required: file or text"
         _ERRORCODE=$ERROR_INVALID_ARGUMENT
     else
-        remoteControlCommand "macro=$1"
+        remoteControlCommand "$1=$2"
     fi
 }
 
@@ -569,7 +569,7 @@ END
 #################################################################
 function DownloadAndValidateASLNodeList() {
     curl --fail -o "$NODE_DIR/$1" -s https://allstarlink.org/cgi-bin/allmondb.pl
-    declare isValid=`grep -i 41498 "$NODE_DIR/$1"`
+    declare isValid=`grep -i N4IRS "$NODE_DIR/$1"`
     if [ -z "${isValid}" ]; then
         rm "$NODE_DIR/$1"
         echo "ASL node list is not valid, ignoring"
@@ -721,9 +721,10 @@ function downloadAndValidate() {
 #################################################################
 function downloadDatabases() {
     if [ -d "${MMDVM_DIR}" ] && [ -d "${AB_DIR}" ]; then
-        ${DEBUG} curl -s -N "https://www.radioid.net/api/dmr/user/?id=%" | jq -r '.results[] | [.id, .callsign, .fname] | @csv' | sed -e 's/"//g' | sed -e 's/,/ /g' > "${MMDVM_DIR}/DMRIds.dat"
-        ${DEBUG} curl -s -N "https://www.radioid.net/api/dmr/user/?id=%" | jq -r '.results[] | [.id, .callsign, .fname] | @csv' | sed -e 's/"//g' > "${AB_DIR}/subscriber_ids.csv"
-        ${DEBUG} curl -s -N "https://www.radioid.net/api/nxdn/user/?id=%" | jq -r '.results[] | [.id, .callsign, .fname, .surname, .city, .state, .country, .remarks] | @csv' | sed -e 's/"//g' > "${MMDVM_DIR}/NXDN.csv"
+
+        ${DEBUG} curl -s -N "https://www.radioid.net/static/user.csv" | awk -F, 'NR>1 {if ($1 > "") print $1,$2,$3}' > "${MMDVM_DIR}/DMRIds.dat"
+        ${DEBUG} curl -s -N "https://www.radioid.net/static/user.csv" | awk -F, 'BEGIN{OFS=",";} NR>1 {if ($1 > "") print $1,$2,$3}' > "${AB_DIR}/subscriber_ids.csv"
+        ${DEBUG} curl -s -N "https://www.radioid.net/static/nxdn.csv" > "${MMDVM_DIR}/NXDN.csv"
 
         downloadAndValidate "NXDNHosts.txt" "NXDN_Hosts.txt" "dvswitch.org"
         downloadAndValidate "P25Hosts.txt" "P25_Hosts.txt" "dvswitch.org"
@@ -930,7 +931,10 @@ else
                     sendMessage "$2"
                 ;;
                 macro)
-                    sendMacro "$2"
+                    sendMacro macro "$2"
+                ;;
+                menu)
+                    sendMacro menu "$2"
                 ;;
                 ping)
                     setPingTimer "$2"
