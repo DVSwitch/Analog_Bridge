@@ -211,6 +211,30 @@ function setTLVGain() {
 }
 
 #################################################################
+# Set the USRP agc params to threshold, slope and decay
+#################################################################
+function setUSRPAgc() {
+    if [ $# -eq 0 ]; then
+        echo "Argument required: AGC parameters (threshold, slope  and decay)"
+        _ERRORCODE=$ERROR_INVALID_ARGUMENT
+    else
+        remoteControlCommand "agcUSRP=$1,$2,$3"
+    fi
+}
+
+#################################################################
+# Set the TLV agc params to threshold, slope and decay
+#################################################################
+function setTLVAgc() {
+    if [ $# -eq 0 ]; then
+        echo "Argument required: AGC parameters (threshold, slope  and decay)"
+        _ERRORCODE=$ERROR_INVALID_ARGUMENT
+    else
+        remoteControlCommand "agcTLV=$1,$2,$3"
+    fi
+}
+
+#################################################################
 # Set the USRP audio codec to {SLIN|ULAW|ADPCM}
 #################################################################
 function setUSRPCodec() {
@@ -310,6 +334,13 @@ function setPingTimer() {
 }
 
 #################################################################
+# Tell AB to reload database files from disk into memory
+#################################################################
+function reloadDatabase() {
+    remoteControlCommand "reloadDatabase"
+}
+
+#################################################################
 # Send the remote control TLV command to Analog_Bridge
 #################################################################
 function remoteControlCommand() {
@@ -332,7 +363,7 @@ END
 }
 
 #################################################################
-# Compose a URRP packet and send it to AB (WIP: address and port)
+# Compose a USRP packet and send it to AB (WIP: address and port)
 #################################################################
 function USRPCommand() {
 python - <<END
@@ -819,6 +850,7 @@ function usage() {
     echo -e "\t update \t\t\t\t\t Update callsign and host databases"
     echo -e "\t tlvAudio mode gain\t\t\t\t Set AMBE audio mode and gain"
     echo -e "\t usrpAudio mode gain\t\t\t\t Set PCM audio mode and gain"
+    echo -e "\t usrpAgc threshold slope decay\t\t\t Set PCM audio agc threshold slope and decay"
     echo -e "\t usrpCodec {SLIN|ULAW|ADPCM}\t\t\t Set AB -> DVSM/UC audio codec"
     echo -e "\t tlvPorts rxport txport\t\t\t\t Set Analog_Bridge receive and transmit ports"
     echo -e "\t info \t\t\t\t\t\t Update ABInfo and send to DVSM/UC"
@@ -832,6 +864,7 @@ function usage() {
     echo -e "\t collectProcessDataFiles \t\t\t Collect and prepare DVSM data files"
     echo -e "\t collectProcessPushDataFiles \t\t\t Collect, prepare and upload DVSM data files"
     echo -e "\t collectProcessPushDataFilesHTTP \t\t Collect, prepare and upload DVSM data files over http"
+    echo -e "\t reloadDatabase \t\t\t\t Tell AB to reload database files into memory"
     exit 1
 }
 
@@ -897,6 +930,12 @@ else
                     setUSRPAudioType $2
                     setUSRPGain $3
                 ;;
+                USRPAgc|usrpagc)
+                    setUSRPAgc $2 $3 $4
+                ;;
+                TLVAgc|tlvagc)
+                    setTLVAgc $2 $3 $4
+                ;;
                 usrpCodec|usrpcodec)
                     setUSRPCodec $2
                 ;;
@@ -926,6 +965,9 @@ else
                 ;;
                 collectProcessPushDataFilesHTTP|collectprocesspushdatafileshttp|cppdfh)
                     collectProcessPushDataFilesHTTP
+                ;;
+                reloadDatabase|reloaddatabase)
+                    reloadDatabase
                 ;;
                 message)
                     sendMessage "$2"

@@ -1,0 +1,20 @@
+Analog_Bridge:
+Add AGC update including new settings
+Add reloadDatabase remote command
+Add menu command (does not popup menu on mobile)
+Support USRP ping back (NAT keep alive)
+Multiport transmit to support better bridge creation
+Allow macro variables with substitution
+Better ini parsing error messages
+Add warning if call not found in database (DSTAR)
+Add name lookup and metadata export
+Change default transferRoot to /tmp
+Make tune command able to invoke macros
+
+dvswitch.sh:
+Inherit dir names from environment
+Use awk and not jq
+Change ASL validation to a more visible node
+Allow several commands to exdcute without ABInfo being present.
+Add download and validation of user database files.
+
