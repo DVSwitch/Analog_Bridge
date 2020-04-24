@@ -1,4 +1,5 @@
 Analog_Bridge:
+DMR tune command now supports a ! TG
 Add AGC update including new settings
 Add reloadDatabase remote command
 Add menu command (does not popup menu on mobile)
