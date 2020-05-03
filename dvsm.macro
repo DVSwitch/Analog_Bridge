@@ -6,17 +6,17 @@
 
 [MACROS]
 ; Example: When a DVSM user selects the DMR mode, AB will look for the mode below and execute the script and pass the parameter.
-; In this case, AB will execute the script "/opt/Analog_Bridge/dvswitch.sh" and pass the prarmeters of "mode DMR" to the script. 
+; In this case, AB will execute the script "/opt/MMDVM_Bridge/dvswitch.sh" and pass the prarmeters of "mode DMR" to the script. 
 
-DMR =   /opt/Analog_Bridge/dvswitch.sh mode DMR
-DSTAR = /opt/Analog_Bridge/dvswitch.sh mode DSTAR
-NXDN =  /opt/Analog_Bridge/dvswitch.sh mode NXDN
-P25 =   /opt/Analog_Bridge/dvswitch.sh mode P25
-YSF =   /opt/Analog_Bridge/dvswitch.sh mode YSF
+DMR =   /opt/MMDVM_Bridge/dvswitch.sh mode DMR
+DSTAR = /opt/MMDVM_Bridge/dvswitch.sh mode DSTAR
+NXDN =  /opt/MMDVM_Bridge/dvswitch.sh mode NXDN
+P25 =   /opt/MMDVM_Bridge/dvswitch.sh mode P25
+YSF =   /opt/MMDVM_Bridge/dvswitch.sh mode YSF
 
 ; Ask AB to pull fresh data files and send to DVSM/UC
-dbupdate = /opt/Analog_Bridge/dvswitch.sh collectProcessPushDataFiles
+dbupdate = /opt/MMDVM_Bridge/dvswitch.sh collectProcessPushDataFiles
 
 ; Example TG / Reflector Macro
-9876 =  /opt/Analog_Bridge/parrot.sh
+9876 =  /opt/MMDVM_Bridge/parrot.sh
 

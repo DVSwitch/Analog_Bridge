@@ -20,7 +20,7 @@ set -o errexit
 #                                                  #
 ####################################################
 
-dvsw="/opt/Analog_Bridge/dvswitch.sh"
+dvsw="/opt/MMDVM_Bridge/dvswitch.sh"
 
 function tgChange() {
     case $1 in

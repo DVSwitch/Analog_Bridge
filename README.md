@@ -1,5 +1,7 @@
 # Analog_Bridge
 
+Note: dvswitch.sh has been moved to the MMDVM_Bridge repository
+
 Enviorment Variables
 AnalogBridgeLogDir = Where to put Analog_Bridge.log
 
