@@ -1,27 +1,23 @@
 [Unit]
 Description=Analog_Bridge Service
 # Description=Place this file in /lib/systemd/system
-# Description=N4IRS 04/20/2018
+# Description=N4IRS 05/06/2020
 
-# The device name should point to the
-# port the mmdvm is plugged into.
-# For USB ports (Arduino Due)
-# BindTo=dev-ttyACM0.device
-#
 # To make the network-online.target available
 # systemctl enable systemd-networkd-wait-online.service
 
 After=network-online.target syslog.target netcheck.service
+Requires=netcheck.service
 Wants=network-online.target
 
 [Service]
 Type=simple
+Restart=on-failure
+RestartSec=3
 StandardOutput=null
 WorkingDirectory=/opt/Analog_Bridge
-Environment=AnalogBridgeLogDir=/var/log/dvswitch/Analog_Bridge
-# Environment=LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-Restart=always
-RestartSec=3
+Environment=AnalogBridgeLogDir=/var/log/dvswitch
+ExecStartPre = /bin/sh -c 'echo "Starting Analog_Bridge: [`date +%%T.%%3N`]" >> /var/log/netcheck'
 ExecStart=/opt/Analog_Bridge/Analog_Bridge /opt/Analog_Bridge/Analog_Bridge.ini
 ExecReload=/bin/kill -2 $MAINPID
 KillMode=process
