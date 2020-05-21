@@ -1,4 +1,4 @@
-Create a empty base log file.
+Create a empty base log file, in the log directory.
 
 Example: touch MMDVM_Bridge.log
 
