@@ -3,17 +3,14 @@ Description=Analog_Bridge Service
 # Description=Place this file in /lib/systemd/system
 # Description=N4IRS 05/06/2020
 
-# To make the network-online.target available
-# systemctl enable systemd-networkd-wait-online.service
-
-After=network-online.target syslog.target netcheck.service
+After=netcheck.service
 Requires=netcheck.service
-Wants=network-online.target
 
 [Service]
 Type=simple
 Restart=on-failure
 RestartSec=3
+RestartPreventExitStatus=254
 StandardOutput=null
 WorkingDirectory=/opt/Analog_Bridge
 Environment=AnalogBridgeLogDir=/var/log/dvswitch
@@ -25,3 +22,6 @@ KillMode=process
 [Install]
 WantedBy=multi-user.target
 
+# 254 matching IDs
+# 253 ini parse errors
+# 252 dv3000 not found, fallback not enabled
