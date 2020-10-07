@@ -1,7 +1,7 @@
 [Unit]
 Description=Analog_Bridge Service
 # Description=Place this file in /lib/systemd/system
-# Description=N4IRS 05/06/2020
+# Description=N4IRS 10/07/2020
 
 After=netcheck.service
 Requires=netcheck.service
@@ -16,6 +16,7 @@ WorkingDirectory=/opt/Analog_Bridge
 Environment=AnalogBridgeLogDir=/var/log/dvswitch
 ExecStartPre = /bin/sh -c 'echo "Starting Analog_Bridge: [`date +%%T.%%3N`]" >> /var/log/netcheck'
 ExecStart=/opt/Analog_Bridge/Analog_Bridge /opt/Analog_Bridge/Analog_Bridge.ini
+ExecStartPost= -/usr/local/sbin/update-config.sh
 ExecReload=/bin/kill -2 $MAINPID
 KillMode=process
 
