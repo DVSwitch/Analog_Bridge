@@ -18,5 +18,5 @@ YSF =   /opt/MMDVM_Bridge/dvswitch.sh mode YSF
 dbupdate = /opt/MMDVM_Bridge/dvswitch.sh collectProcessPushDataFiles
 
 ; Example TG / Reflector Macro
-9876 =  /opt/MMDVM_Bridge/parrot.sh
+9876 =  /opt/Analog_Bridge/parrot.sh
 

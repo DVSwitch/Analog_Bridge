@@ -4,8 +4,8 @@
 # 0, 1, 4, 7, 8, 9, 10, 11, 14, 15, 17, 18, 21, 22, 23, 24, 25
 
 # Note that the GPIO numbers that you program here refer to the pins
-# of the BCM2835 and *not* the numbers on the pin header. 
-# So, if you want to activate GPIO7 on the header you should be 
+# of the BCM2835 and *not* the numbers on the pin header.
+# So, if you want to activate GPIO7 on the header you should be
 # using GPIO4 in this script. Likewise if you want to activate GPIO0
 # on the header you should be using GPIO17 here.
 
@@ -14,23 +14,20 @@
 # THIS IS A BCM PIN NUMBER, NOT A WIRINGPI PIN NUMBER!
 # static const unsigned char RESET_PIN = 4;
 
-# Set up GPIO 4 and set to output
-echo "4" > /sys/class/gpio/export
-echo "out" > /sys/class/gpio/gpio4/direction
+if [ -f /sys/class/thermal/thermal_zone0/temp ] ; then
+	# Set up GPIO 4 and set to output
+	echo "4" > /sys/class/gpio/export
+	echo "out" > /sys/class/gpio/gpio4/direction
 
-# Write output
-echo "1" > /sys/class/gpio/gpio4/value
-sleep .25
-echo "0" > /sys/class/gpio/gpio4/value
+	# Write output
+	echo "1" > /sys/class/gpio/gpio4/value
+	sleep .25
+	echo "0" > /sys/class/gpio/gpio4/value
 
-# Clean up
-echo "4" > /sys/class/gpio/unexport
+	# Clean up
+	echo "4" > /sys/class/gpio/unexport
+
+fi
 
 exit 0
 
-#RESIN_HOST_CONFIG_dtoverlay pi3-miniuart-bt
-#RESIN_HOST_CONFIG_enable_uart 1
-
-
-#The overlay you loaded switches bluetooth from the main full serial port
-# over to the other serial port, leaving ttyAMA0 available for your device to use and send data over to the pi.
