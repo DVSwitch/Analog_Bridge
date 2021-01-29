@@ -25,3 +25,9 @@ totime = 180000				; transmit time-out time (in ms) (optional, default 3 minutes
 
 idrecording = |ie			; id recording or morse string see http://ohnosec.org/drupal/node/87
 idtalkover = |ie			; Talkover ID (optional) default is none see http://ohnosec.org/drupal/node/129
+
+; Add node 1999 to your [nodes] stanza
+
+[nodes]
+1999 = radio@127.0.0.1:4569/1999,NONE	; ADD this to your existing [nodes] stanza
+                                        ; 4569 is the default iax port number
