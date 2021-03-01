@@ -13,6 +13,8 @@ DSTAR = /opt/MMDVM_Bridge/dvswitch.sh mode DSTAR
 NXDN =  /opt/MMDVM_Bridge/dvswitch.sh mode NXDN
 P25 =   /opt/MMDVM_Bridge/dvswitch.sh mode P25
 YSF =   /opt/MMDVM_Bridge/dvswitch.sh mode YSF
+ASL =   /opt/MMDVM_Bridge/dvswitch.sh mode ASL
+STFU =  /opt/MMDVM_Bridge/dvswitch.sh mode STFU
 
 ; Ask AB to pull fresh data files and send to DVSM/UC
 dbupdate = /opt/MMDVM_Bridge/dvswitch.sh collectProcessPushDataFiles
