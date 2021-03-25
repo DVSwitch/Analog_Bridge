@@ -1,7 +1,7 @@
 [Unit]
 Description=Analog_Bridge Service
 # Description=Place this file in /lib/systemd/system
-# Description=N4IRS 10/16/2020
+# Description=N4IRS 03/25/2021
 
 After=netcheck.service
 Requires=netcheck.service
@@ -10,7 +10,7 @@ Requires=netcheck.service
 Type=simple
 Restart=on-failure
 RestartSec=3
-RestartPreventExitStatus=254
+RestartPreventExitStatus=252 253 254
 StandardOutput=null
 WorkingDirectory=/opt/Analog_Bridge
 Environment=AnalogBridgeLogDir=/var/log/dvswitch
