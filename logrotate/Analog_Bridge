@@ -1,21 +1,12 @@
-/var/log/dvswitch/Analog_Bridge.log
-{
-        daily
-        rotate 7
-        maxage 7
-        dateext
-        dateformat -%Y-%m-%d
-        extension .log
-        ifempty
-        create
-        firstaction
-                today=$(date +"%Y-%m-%d")
-                filename="/var/log/dvswitch/Analog_Bridge-$today.log"
-                if [ -f "$filename" ]; then
-                        mv /var/log/dvswitch/Analog_Bridge-$today.log /var/log/dvswitch/Analog_Bridge.log
-                fi
-                systemctl reload analog_bridge
-        endscript
-
+/var/log/dvswitch/Analog_Bridge.log {
+	rotate 7
+	daily
+	compress
+	size 100k
+	nocreate
+	missingok
+	postrotate
+		systemctl reload analog_bridge
+	endscript
 }
 
