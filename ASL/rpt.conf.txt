@@ -23,8 +23,8 @@ nounkeyct = 1				; Set to a 1 to eliminate courtesy tones and associated delays.
 
 totime = 180000				; transmit time-out time (in ms) (optional, default 3 minutes 180000 ms)
 
-idrecording = |ie			; id recording or morse string see http://ohnosec.org/drupal/node/87
-idtalkover = |ie			; Talkover ID (optional) default is none see http://ohnosec.org/drupal/node/129
+; idrecording = |ie			; id recording or morse string see http://ohnosec.org/drupal/node/87
+; idtalkover = |ie			; Talkover ID (optional) default is none see http://ohnosec.org/drupal/node/129
 
 ; Add node 1999 to your [nodes] stanza
 
