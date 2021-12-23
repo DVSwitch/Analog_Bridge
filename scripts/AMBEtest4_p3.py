@@ -176,7 +176,7 @@ def main(argv):
 
         time.sleep(0.02)
         rcv = port.read(10)
-        sys.stdout.write(rcv)
+        print(rcv)
     else:
         _sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         _sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
