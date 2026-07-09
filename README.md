@@ -1,46 +1,55 @@
-# DVSwitch Filesystem-Mirror
+# Analog_Bridge
 
-## Purpose
+**Analog_Bridge** is a high-performance, real-time audio routing and transcoding engine designed as a core modular building block of the DVSwitch ecosystem. It facilitates the deterministic transfer of voice data between analog sources (using uncompressed PCM via the USRP protocol) and digital networks (using compressed TLV frames). By acting as a software bridge, it allows analog clients like **AllStarLink** or **DVSwitch Mobile** to interoperate seamlessly with digital modes including **DMR, P25, NXDN, D-Star, and System Fusion**.
 
-This repository is a **filesystem-mirror** — a pure representation of the
-DVSwitch package contents as they would appear on a Debian Linux filesystem.
+## Deployment
 
-Unlike traditional packaging repositories that carry debian packaging metadata
-(`DEBIAN/`, control files, maintainer scripts), this repository strips all
-packaging metadata and maps directly to the target filesystem paths.
-
-## Structure
-
-Every file is placed at its intended target path, rooted at the repository root:
+Download the specific binary for your architecture (armhf, i386, or amd64) and place it in the recommended working directory:
 
 ```
-etc/          → /etc/          (configuration files, logrotate configs)
-lib/          → /lib/          (systemd service units)
-opt/          → /opt/          (binaries, application data)
-usr/          → /usr/          (scripts, libraries, shared data)
-var/          → /var/          (runtime data, language files, talkgroup lists)
+/opt/Analog_Bridge/Analog_Bridge
 ```
 
-## Architecture-Specific Binaries
+## Configuration
 
-Architecture-specific ELF binaries follow a `.arch` suffix convention:
+Define your operational parameters in the primary initialization file. This file manages audio levels, vocoder selection, and network port assignments:
 
-- `foo.amd64` — x86_64
-- `foo.arm64` — aarch64
-- `foo.armhf` — ARM hard-float
-- `foo.i386` — x86
+```
+/opt/Analog_Bridge/Analog_Bridge.ini
+```
 
-The **amd64** variant is authoritative for configuration and data files;
-other architectures contribute only architecture-specific ELF binaries.
+### Vocoder Selection
 
-## Branches
+Configure the system to use either hardware (DV3000/AMBEServer) or software (md380-emu) for digital voice transcoding. Hardware is recommended for production-grade downlink audio:
 
-| Branch | Purpose |
-|--------|---------|
-| `bookworm` | Filesystem-mirror for Debian 12 bookworm |
-| `development` | Development branch (tracks bookworm) |
+```ini
+[GENERAL]
+useEmulator = true
+```
 
-## Origin
+### Port Mapping
 
-Binaries and configuration files in this repository were extracted from
-Debian `.deb` packages built by [DVSwitch](https://github.com/DVSwitch).
+Implement the "Three-Pipe" architecture by ensuring the `txPort` and `rxPort` in the `[AMBE_AUDIO]` stanza correctly cross-over with your digital bridge partner, such as **MMDVM_Bridge**:
+
+```
+AB txPort (31103) <-> Partner rxPort (31103)
+```
+
+### Service Management
+
+Control the binary via systemd for persistent operation and automated recovery:
+
+```bash
+sudo systemctl start analog_bridge
+```
+
+## Features
+
+- **Protocol Support** — Native handling of USRP (8 kHz signed 16-bit PCM) for analog and TLV (Tag-Length-Value) for digital streams.
+- **Dynamic Control** — Supports runtime parameter injection (mode changes, tuning, gain adjustments) via the `dvswitch.sh` CLI utility without requiring service restarts.
+- **Extensibility** — Includes a powerful macro engine capable of executing external Linux scripts based on received dial strings.
+- **Telemetry** — Generates deterministic diagnostic logs in `/var/log/dvswitch/` to monitor PTT transitions and vocoder health.
+
+---
+
+> *AI-Generated DVSwitch Guidance. Use at your own risk.*
