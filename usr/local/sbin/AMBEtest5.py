@@ -20,7 +20,7 @@
 #   Defaults to 460800 baud. Older boards (230400) can be selected with -b.
 #
 #   Copyright (C) 2021 Mike Zingman N4IRR
-#   Copyright (C) 2026 DVSwitch Project
+#   Copyright (C) 2026 DVSwitch KAT
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
